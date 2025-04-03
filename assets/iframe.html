@@ -2,114 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <style>
-    .btn {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 10px 15px;
-      font-size: 14px;
-      font-weight: bold;
-      color: white;
-      background-color: #0073e6;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .btn:hover {
-      background-color: #005bb5;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <h2 class="u-semibold u-fs-xl">Hello, <span id="name">World</span>!</h2>
-  <p>Course Mission ID: <span id="courseMissionId">Loading...</span></p>
-  <a id="courseMissionLink" class="btn" href="#" target="_blank" style="display:none;">Go to Mission</a>
-  <p>Challenge ID: <span id="challengeId">Loading...</span></p>
-  <a id="challengeLink" class="btn" href="#" target="_blank" style="display:none;">Go to Challenge</a>
-  <p>Coding Lab ID: <span id="codingLabId">Loading...</span></p>
-  <a id="codingLabLink" class="btn" href="#" target="_blank" style="display:none;">Go to Coding Lab</a>
+  <h3>Ticket content:</h3>
+  <div id="content-container" class="container"></div>
 
   <script src="https://static.zdassets.com/zendesk_app_framework_sdk/2.0/zaf_sdk.min.js"></script>
-  <script>
-    var client = ZAFClient.init();
-    client.invoke('resize', { width: '100%', height: '400px' });
-
-    async function displayUserName() {
-      try {
-        const response = await client.get("currentUser.name");
-        document.getElementById("name").innerText = response["currentUser.name"];
-      } catch (error) {
-        console.error("Error fetching user name:", error);
-      }
-    }
-
-    async function getMissionAndChallengeId() {
-      try {
-        console.log("Fetching ticket data...");
-
-        const ticketData = await client.get(["ticket.customField:custom_field_id", "ticket.description"]);
-        console.log("Ticket Data:", ticketData);
-
-        let courseMissionId = ticketData["ticket.customField:custom_field_id"];
-        if (courseMissionId) {
-          document.getElementById("courseMissionId").innerText = courseMissionId;
-          const courseMissionLink = document.getElementById("courseMissionLink");
-          courseMissionLink.href = `https://internal.dev.nonprod.securecodewarrior.com/mission/${courseMissionId.split("|")[0]}/c_sharp.vanilla`;
-          courseMissionLink.style.display = "inline-block";
-        } else {
-          document.getElementById("courseMissionId").innerText = "Not found";
-        }
-
-        const description = ticketData["ticket.description"];
-        console.log("Ticket Description:", description);
-
-        if (description) {
-          let match = description.match(/"courseMissionId"\s*:\s*"([^"|]+)\|([^"]+)"/);
-          if (match) {
-            courseMissionId = match[1] + "|" + match[2];
-            document.getElementById("courseMissionId").innerText = courseMissionId;
-            const courseMissionLink = document.getElementById("courseMissionLink");
-            courseMissionLink.href = `https://internal.dev.nonprod.securecodewarrior.com/mission/${match[1]}/${match[2]}`;
-            courseMissionLink.style.display = "inline-block";
-          }
-
-          // Look for Coding Lab ID (challengeId in text format)
-          let codingLabId = null;
-          match = description.match(/"challengeId"\s*:\s*"([^"]+)"/);
-          if (match) {
-            codingLabId = match[1];
-            document.getElementById("codingLabId").innerText = codingLabId;
-
-            // Set the button link for Coding Lab
-            const codingLabLink = document.getElementById("codingLabLink");
-            codingLabLink.href = `https://portal.securecodewarrior.com/#/explore/coding-lab/${codingLabId}`;
-            codingLabLink.style.display = "inline-block";
-          } else {
-            document.getElementById("codingLabId").innerText = "Not found";
-          }
-
-          // Look for Challenge ID (revisionId in UUID format)
-          match = description.match(/"revisionId"\s*:\s*"([a-f0-9]{24})"/);
-          if (match) {
-            const challengeId = match[1];
-            document.getElementById("challengeId").innerText = challengeId;
-
-            // Set the button link for Challenge
-            const challengeLink = document.getElementById("challengeLink");
-            challengeLink.href = `https://cms.securecodewarrior.com/search?q=${challengeId}`;
-            challengeLink.style.display = "inline-block";
-          } else {
-            document.getElementById("challengeId").innerText = "Not found";
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching ticket data:", error);
-      }
-    }
-
-    displayUserName();
-    getMissionAndChallengeId();
-  </script>
+  <script src="./src/script.js"></script>
 </body>
 </html>
