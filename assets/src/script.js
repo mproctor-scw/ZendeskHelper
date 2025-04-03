@@ -1,28 +1,49 @@
 var client = ZAFClient.init();
 client.invoke('resize', { width: '100%', height: '400px' });
 
-async function displayUserName() {
-    try {
-      const response = await client.get("currentUser.name");
-      document.getElementById("name").innerText = response["currentUser.name"];
-    } catch (error) {
-      console.error("Error fetching user name:", error);
+async function fetchMissionData() {
+  try {
+    const response = await fetch("./data/missions.json");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    console.error("Could not fetch or parse the JSON:", error);
+    renderError(error)
+    return null;
   }
+}
+
+async function getMissionDetails(missionId) {
+  try {
+    const data = await fetchMissionData();
+    const mission = data.find(m => m.mission === missionId);
+    return mission;
+  } catch (error) {
+    console.error(error);
+    renderError(error)
+    return null
+  }
+}
 
 async function getMissionId(description) {
   let match = description.match(/"courseMissionId"\s*:\s*"([^"|]+)\|([^"]+)"/);
 
   if (match) {
     const missionId = match[1];
-    const missionLanguage = match[2]
+    const missionLanguage = match[2];
+
+    const missionDetails = await getMissionDetails(missionId);
+
     const container = document.getElementById("content-container")
     const outerDiv = document.createElement("div")
     const cardDiv = document.createElement('div');
     cardDiv.classList.add('card');
 
     const nameSpan = document.createElement('span');
-    nameSpan.textContent = `Mission: ${missionId}`;
+    nameSpan.textContent = `ID: ${missionId}`;
     nameSpan.classList.add("ellipsis")
     
     const languageSpan = document.createElement('span');
@@ -35,8 +56,26 @@ async function getMissionId(description) {
     link.setAttribute('target', '_blank');
     link.style.display = "inline-block";
 
-    cardDiv.appendChild(nameSpan);
-    cardDiv.appendChild(languageSpan);
+    if (missionDetails) {
+      console.log(missionDetails)
+      const aliasSpan = document.createElement('span');
+      aliasSpan.textContent = `Alias: ${missionDetails.alias}`;
+      
+      const difficultySpan = document.createElement('span');
+      difficultySpan.textContent = `Alias: ${missionDetails.difficulty}`;
+      
+      const categorySpan = document.createElement('span');
+      categorySpan.textContent = `Type: ${missionDetails.category} - ${missionDetails.subcategory}`;
+      
+      cardDiv.appendChild(aliasSpan);
+      cardDiv.appendChild(languageSpan);
+      cardDiv.appendChild(difficultySpan);
+      cardDiv.appendChild(categorySpan);
+    } else {
+      cardDiv.appendChild(nameSpan);
+      cardDiv.appendChild(languageSpan);
+    }
+
     cardDiv.appendChild(link);
     outerDiv.appendChild(cardDiv);
     container.appendChild(outerDiv);
@@ -144,5 +183,4 @@ async function loadTicketData() {
     }
 }
 
-displayUserName();
 loadTicketData();
