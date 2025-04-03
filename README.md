@@ -1,4 +1,4 @@
-# Zendesk Content Linker
+# zcl - Zendesk Content Linker
 
 Zendesk Content Linker is a Zendesk ZAF application connects content links to support tickets
 
