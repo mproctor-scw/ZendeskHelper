@@ -48,6 +48,7 @@ async function getMissionId(description) {
     
     const languageSpan = document.createElement('span');
     languageSpan.textContent = `Language: ${missionLanguage}`;
+    languageSpan.classList.add('ellipsis');
 
     const link = document.createElement('a');
     link.textContent = "Play lab in explore";
@@ -130,6 +131,7 @@ async function getChallengeId(description) {
 
     const nameSpan = document.createElement('span');
     nameSpan.textContent = `Challenge: ${challengeId}`;
+    nameSpan.classList.add('ellipsis');
 
     const link = document.createElement('a');
     link.textContent = "View challenge in CMS";
@@ -163,7 +165,7 @@ async function renderError(text) {
 
 async function loadTicketData() {
     try {
-      const ticketData = await client.get(["ticket.customField:custom_field_id", "ticket.description"]);
+      const ticketData = await client.get(["ticket.description"]);
       const description = ticketData["ticket.description"];
 
       if (description) {
